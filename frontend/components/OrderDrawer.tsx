@@ -1,53 +1,60 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { Order } from '../types/order';
-import { X, Check } from 'lucide-react';
 import { format } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { useOrderMutation } from '@/hooks/useOrderMutation';
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+} from '@/components/ui/sheet';
 
 interface OrderDrawerProps {
   order: Order | null;
   onClose: () => void;
+  onStatusUpdated: () => void;
 }
 
 const statusSteps = ['Placed', 'Pending', 'Shipped', 'Delivered'];
 
-export default function OrderDrawer({ order, onClose }: OrderDrawerProps) {
-  useEffect(() => {
-    if (order) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [order]);
+export default function OrderDrawer({ order, onClose, onStatusUpdated }: OrderDrawerProps) {
+  const { updateOrderStatus, isSubmitting, error } = useOrderMutation();
+  const [localError, setLocalError] = useState<string | null>(null);
 
   if (!order) return null;
 
   const currentStepIndex = statusSteps.indexOf(order.status);
+  const nextStatus = order.status === 'Pending' ? 'Shipped' : 'Delivered';
+
+  const handleStatusUpdate = async () => {
+    setLocalError(null);
+    try {
+      await updateOrderStatus(order.id, nextStatus);
+      onStatusUpdated();
+      onClose();
+    } catch (err: any) {
+      setLocalError(err.message || 'Failed to update status');
+    }
+  };
 
   return (
-    <>
-      {/* Scrim */}
-      <div
-        className="fixed inset-0 bg-black/6 animate-fade-in z-40"
-        onClick={onClose}
-      />
-
-      {/* Drawer */}
-      <div className="fixed right-0 top-0 h-screen w-[420px] bg-surface border-l border-default shadow-elevated animate-slide-in-right z-50 flex flex-col">
+    <Sheet open={!!order} onOpenChange={(open) => !open && onClose()}>
+      <SheetContent side="right" className="w-[420px] sm:max-w-[420px] p-0 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 h-14 border-b border-default">
-          <h2 className="font-mono text-base font-semibold text-primary">{order.id}</h2>
-          <button
-            onClick={onClose}
-            className="flex items-center justify-center w-8 h-8 rounded hover:bg-[color:var(--border-subtle)] transition-colors"
-          >
-            <X size={20} className="text-secondary" />
-          </button>
+        <div className="flex items-center justify-between px-6 h-14 border-b shrink-0">
+          <SheetTitle className="font-mono text-base font-semibold">
+            {order.id}
+          </SheetTitle>
         </div>
+
+        {/* Error Banner */}
+        {(error || localError) && (
+          <div className="mx-6 mt-4 px-4 py-2 rounded-lg text-sm bg-destructive-foreground text-destructive border border-destructive/20">
+            {localError || error}
+          </div>
+        )}
 
         {/* Status Timeline */}
         <div className="flex flex-col px-6 py-6 gap-4">
@@ -60,29 +67,32 @@ export default function OrderDrawer({ order, onClose }: OrderDrawerProps) {
                 {/* Dot and Line */}
                 <div className="flex flex-col items-center">
                   <div
-                    className={`w-2.5 h-2.5 rounded-full ${
+                    className={`w-2.5 h-2.5 rounded-full shrink-0 ${
                       isComplete
-                        ? 'bg-[color:var(--accent)]'
-                        : 'border-2 border-default bg-surface'
+                        ? 'bg-primary'
+                        : 'border-2 border-border bg-card'
                     }`}
                   />
                   {index < statusSteps.length - 1 && (
                     <div
-                      className={`w-px flex-1 my-1 ${
-                        isComplete ? 'bg-[color:var(--accent)]' : 'bg-[color:var(--border)]'
+                      className={`w-px flex-1 my-1 min-h-[24px] ${
+                        isComplete ? 'bg-primary' : 'bg-border'
                       }`}
-                      style={{ minHeight: '24px' }}
                     />
                   )}
                 </div>
 
                 {/* Label and Timestamp */}
                 <div className="flex-1 pb-6">
-                  <p className={`text-sm font-medium ${isCurrent ? 'text-primary' : 'text-secondary'}`}>
+                  <p
+                    className={`text-sm font-medium ${
+                      isCurrent ? 'text-foreground' : 'text-muted-foreground'
+                    }`}
+                  >
                     {step}
                   </p>
                   {isComplete && order.createdAt && (
-                    <p className="text-xs text-secondary mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       {format(new Date(order.createdAt), 'MMM d, h:mm a')}
                     </p>
                   )}
@@ -93,18 +103,18 @@ export default function OrderDrawer({ order, onClose }: OrderDrawerProps) {
         </div>
 
         {/* Customer & Items */}
-        <div className="px-6 py-5 border-t border-default space-y-4">
+        <div className="px-6 py-5 border-t space-y-4">
           <div className="flex justify-between text-sm">
-            <span className="text-secondary">Customer</span>
-            <span className="font-medium text-primary">{order.customerName}</span>
+            <span className="text-muted-foreground">Customer</span>
+            <span className="font-medium text-foreground">{order.customerName}</span>
           </div>
 
           <div>
-            <p className="text-sm text-secondary mb-2">Items</p>
+            <p className="text-sm text-muted-foreground mb-2">Items</p>
             <ul className="space-y-1">
               {order.items.map((item, idx) => (
-                <li key={idx} className="text-sm text-primary flex items-start">
-                  <span className="mr-2">•</span>
+                <li key={idx} className="text-sm text-foreground flex items-start">
+                  <span className="mr-2 text-muted-foreground">•</span>
                   <span>{item}</span>
                 </li>
               ))}
@@ -113,10 +123,10 @@ export default function OrderDrawer({ order, onClose }: OrderDrawerProps) {
         </div>
 
         {/* Total */}
-        <div className="px-6 py-5 border-t border-default">
+        <div className="px-6 py-5 border-t">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-secondary">Total Amount</span>
-            <span className="text-lg font-mono font-semibold text-primary">
+            <span className="text-sm text-muted-foreground">Total Amount</span>
+            <span className="text-lg font-mono font-semibold text-foreground">
               ${order.total.toFixed(2)}
             </span>
           </div>
@@ -126,20 +136,21 @@ export default function OrderDrawer({ order, onClose }: OrderDrawerProps) {
         <div className="flex-1" />
 
         {/* Footer Actions */}
-        <div className="border-t border-default px-6 py-4 flex gap-2">
-          <button
-            onClick={onClose}
-            className="flex-1 h-9 px-4 rounded-lg border border-default text-sm font-medium text-secondary hover:bg-[color:var(--border-subtle)] transition-colors"
-          >
+        <div className="border-t px-6 py-4 flex gap-2">
+          <Button variant="outline" onClick={onClose} className="flex-1" disabled={isSubmitting}>
             Close
-          </button>
+          </Button>
           {order.status !== 'Delivered' && (
-            <button className="flex-1 h-9 px-4 bg-[color:var(--accent)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
-              Mark {order.status === 'Pending' ? 'Shipped' : 'Delivered'}
-            </button>
+            <Button
+              className="flex-1"
+              onClick={handleStatusUpdate}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Updating...' : `Mark ${nextStatus}`}
+            </Button>
           )}
         </div>
-      </div>
-    </>
+      </SheetContent>
+    </Sheet>
   );
 }

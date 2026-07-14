@@ -1,8 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { X } from 'lucide-react';
 import { useOrderMutation } from '../hooks/useOrderMutation';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 interface NewOrderModalProps {
   isOpen: boolean;
@@ -55,100 +65,79 @@ export default function NewOrderModal({ isOpen, onClose, onSuccess }: NewOrderMo
     }
   };
 
-  if (!isOpen) return null;
-
   const error = clientError || serverError;
 
   return (
-    <>
-      {/* Scrim */}
-      <div className="fixed inset-0 bg-black/6 animate-fade-in z-40" onClick={onClose} />
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md" showCloseButton={false}>
+        <DialogHeader>
+          <DialogTitle>Create New Order</DialogTitle>
+          <DialogDescription>
+            Fill in the details to create a new order.
+          </DialogDescription>
+        </DialogHeader>
 
-      {/* Modal */}
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-surface border border-default rounded-xl shadow-elevated animate-fade-in z-50">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 h-14 border-b border-default">
-          <h2 className="text-lg font-semibold text-primary">Create New Order</h2>
-          <button
-            onClick={onClose}
-            className="flex items-center justify-center w-8 h-8 rounded hover:bg-[color:var(--border-subtle)] transition-colors"
-          >
-            <X size={20} className="text-secondary" />
-          </button>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div
-              className="px-4 py-3 rounded-lg text-sm"
-              style={{ backgroundColor: 'var(--error-fill)', color: 'var(--error-text)' }}
-            >
+            <div className="px-4 py-3 rounded-lg text-sm bg-destructive-foreground text-destructive border border-destructive/20">
               {error}
             </div>
           )}
 
-          <div>
-            <label className="block text-sm font-medium text-primary mb-1">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">
               Customer Name *
             </label>
-            <input
+            <Input
               type="text"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-default bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)] focus:border-transparent"
               placeholder="John Doe"
               disabled={isSubmitting}
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-primary mb-1">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">
               Items (comma-separated) *
             </label>
-            <input
+            <Input
               type="text"
               value={items}
               onChange={(e) => setItems(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-default bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)] focus:border-transparent"
               placeholder="Bread x2, Milk x1"
               disabled={isSubmitting}
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-primary mb-1">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">
               Total Amount ($) *
             </label>
-            <input
+            <Input
               type="number"
               step="0.01"
               value={total}
               onChange={(e) => setTotal(e.target.value)}
-              className="w-full h-9 px-3 rounded-lg border border-default bg-surface text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)] focus:border-transparent"
               placeholder="25.00"
               disabled={isSubmitting}
             />
           </div>
 
-          <div className="flex gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 h-9 px-4 rounded-lg border border-default text-sm font-medium text-secondary hover:bg-[color:var(--border-subtle)] transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1 h-9 px-4 bg-[color:var(--accent)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-            >
+          <DialogFooter className="gap-2 pt-2">
+            <DialogClose
+              render={
+                <Button type="button" variant="outline" disabled={isSubmitting}>
+                  Cancel
+                </Button>
+              }
+            />
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Creating...' : 'Create Order'}
-            </button>
-          </div>
+            </Button>
+          </DialogFooter>
         </form>
-      </div>
-    </>
+      </DialogContent>
+    </Dialog>
   );
 }

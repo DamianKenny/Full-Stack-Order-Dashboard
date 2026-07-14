@@ -65,7 +65,7 @@ export default function Home() {
       </div>
 
       {/* Order Detail Drawer */}
-      <OrderDrawer order={selectedOrder} onClose={() => setSelectedOrder(null)} />
+      <OrderDrawer order={selectedOrder} onClose={() => setSelectedOrder(null)} onStatusUpdated={refetch} />
 
       {/* New Order Modal */}
       <NewOrderModal

@@ -2,6 +2,8 @@
 
 import { Search, Plus } from 'lucide-react';
 import { OrderStatus } from '../types/order';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import SegmentedControl from './SegmentedControl';
 
 interface TopBarProps {
@@ -20,9 +22,9 @@ export default function TopBar({
   onSearchChange,
 }: TopBarProps) {
   return (
-    <div className="flex items-center justify-between h-16 px-8 border-b border-default bg-surface">
+    <div className="flex items-center justify-between h-16 px-8 border-b bg-card">
       {/* Left: Page Title */}
-      <h1 className="text-2xl font-semibold text-primary">Orders</h1>
+      <h1 className="text-2xl font-semibold text-foreground">Orders</h1>
 
       {/* Right: Search, Filter, Action */}
       <div className="flex items-center gap-4">
@@ -30,14 +32,14 @@ export default function TopBar({
         <div className="relative">
           <Search
             size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-faint"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
           />
-          <input
+          <Input
             type="text"
             value={searchValue}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search orders..."
-            className="w-64 h-9 pl-9 pr-3 rounded-lg border border-default bg-surface text-sm placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)] focus:border-transparent transition-all"
+            className="w-64 pl-9 bg-background"
           />
         </div>
 
@@ -45,13 +47,10 @@ export default function TopBar({
         <SegmentedControl currentStatus={currentStatus} onStatusChange={onStatusChange} />
 
         {/* New Order Button */}
-        <button
-          onClick={onNewOrder}
-          className="flex items-center gap-2 h-9 px-4 bg-[color:var(--accent)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
-        >
+        <Button onClick={onNewOrder} size="sm">
           <Plus size={14} />
           New Order
-        </button>
+        </Button>
       </div>
     </div>
   );

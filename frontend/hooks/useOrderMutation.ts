@@ -24,8 +24,25 @@ export const useOrderMutation = () => {
     }
   };
 
+  const updateOrderStatus = async (id: string, newStatus: string) => {
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const updatedOrder = await orderAPI.updateOrderStatus(id, newStatus);
+      return updatedOrder;
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error || 'Failed to update order status';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return {
     createOrder,
+    updateOrderStatus,
     isSubmitting,
     error,
   };

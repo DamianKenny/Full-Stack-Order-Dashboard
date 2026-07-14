@@ -8,10 +8,6 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        sans: ['var(--font-inter)'],
-        mono: ['var(--font-plex-mono)'],
-      },
       fontSize: {
         '2xl': ['24px', { lineHeight: '32px', fontWeight: '600' }],
         'lg': ['18px', { lineHeight: '28px', fontWeight: '600' }],

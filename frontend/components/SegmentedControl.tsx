@@ -1,6 +1,7 @@
 'use client';
 
 import { OrderStatus } from '../types/order';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 interface SegmentedControlProps {
   currentStatus: OrderStatus;
@@ -13,21 +14,34 @@ export default function SegmentedControl({
   currentStatus,
   onStatusChange,
 }: SegmentedControlProps) {
+  // ToggleGroup uses string[] for value in `single` mode with @base-ui/react
+  const groupValue = [currentStatus];
+
+  const handleValueChange = (newValue: string[]) => {
+    if (newValue.length > 0 && newValue[0] !== currentStatus) {
+      onStatusChange(newValue[0] as OrderStatus);
+    }
+  };
+
   return (
-    <div className="inline-flex items-center h-9 rounded-lg border border-default bg-surface p-0.5">
+    <ToggleGroup
+      value={groupValue}
+      onValueChange={handleValueChange}
+      variant="outline"
+      spacing={0}
+      orientation="horizontal"
+      size="sm"
+    >
       {statuses.map((status) => (
-        <button
+        <ToggleGroupItem
           key={status}
-          onClick={() => onStatusChange(status)}
-          className={`px-3 h-8 rounded-md text-sm font-medium transition-all duration-150 ${
-            currentStatus === status
-              ? 'bg-surface-raised text-primary shadow-sm'
-              : 'text-secondary hover:text-primary'
-          }`}
+          value={status}
+          aria-label={status}
+          className="px-3 text-xs font-medium min-w-0"
         >
           {status}
-        </button>
+        </ToggleGroupItem>
       ))}
-    </div>
+    </ToggleGroup>
   );
 }

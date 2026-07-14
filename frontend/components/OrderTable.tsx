@@ -3,91 +3,97 @@
 import { Order } from '../types/order';
 import { MoreVertical } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 interface OrderTableProps {
   orders: Order[];
   onOrderClick: (order: Order) => void;
 }
 
-const statusStyles = {
-  Pending: { text: 'var(--pending-text)', bg: 'var(--pending-fill)' },
-  Shipped: { text: 'var(--shipped-text)', bg: 'var(--shipped-fill)' },
-  Delivered: { text: 'var(--delivered-text)', bg: 'var(--delivered-fill)' },
-};
-
 export default function OrderTable({ orders, onOrderClick }: OrderTableProps) {
+  const getStatusClass = (status: string) => {
+    switch (status) {
+      case 'Pending': return 'status-pending';
+      case 'Shipped': return 'status-shipped';
+      case 'Delivered': return 'status-delivered';
+      default: return '';
+    }
+  };
+
   return (
-    <div className="border border-default rounded-xl bg-surface overflow-hidden mx-8">
-      {/* Header */}
-      <div className="grid grid-cols-[140px_1fr_2fr_120px_130px_140px_40px] gap-4 h-11 px-5 border-b border-default items-center">
-        <div className="text-xs font-medium uppercase tracking-wide text-faint">Order ID</div>
-        <div className="text-xs font-medium uppercase tracking-wide text-faint">Customer</div>
-        <div className="text-xs font-medium uppercase tracking-wide text-faint">Items</div>
-        <div className="text-xs font-medium uppercase tracking-wide text-faint text-right">
-          Total
-        </div>
-        <div className="text-xs font-medium uppercase tracking-wide text-faint">Status</div>
-        <div className="text-xs font-medium uppercase tracking-wide text-faint">Placed</div>
-        <div></div>
-      </div>
-
-      {/* Rows */}
-      {orders.map((order, index) => (
-        <div
-          key={order.id}
-          onClick={() => onOrderClick(order)}
-          className={`grid grid-cols-[140px_1fr_2fr_120px_130px_140px_40px] gap-4 h-14 px-5 items-center cursor-pointer hover:bg-[color:var(--border-subtle)] transition-colors duration-100 ${
-            index !== orders.length - 1 ? 'border-b border-subtle' : ''
-          }`}
-        >
-          {/* Order ID */}
-          <div className="font-mono text-sm text-primary">{order.id}</div>
-
-          {/* Customer */}
-          <div className="text-sm font-medium text-primary truncate">
-            {order.customerName}
-          </div>
-
-          {/* Items */}
-          <div className="text-sm text-secondary truncate">
-            {order.items.join(', ')}
-          </div>
-
-          {/* Total */}
-          <div className="font-mono text-sm text-primary text-right">
-            ${order.total.toFixed(2)}
-          </div>
-
-          {/* Status Badge */}
-          <div>
-            <span
-              className="inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium"
-              style={{
-                backgroundColor: statusStyles[order.status].bg,
-                color: statusStyles[order.status].text,
-              }}
+    <div className="border rounded-xl bg-card overflow-hidden mx-8">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground h-11 px-5">Order ID</TableHead>
+            <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground h-11 px-5">Customer</TableHead>
+            <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground h-11 px-5">Items</TableHead>
+            <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground h-11 px-5 text-right">Total</TableHead>
+            <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground h-11 px-5">Status</TableHead>
+            <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground h-11 px-5">Placed</TableHead>
+            <TableHead className="h-11 px-5 w-10"></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {orders.map((order) => (
+            <TableRow
+              key={order.id}
+              className="cursor-pointer h-14"
+              onClick={() => onOrderClick(order)}
             >
-              {order.status}
-            </span>
-          </div>
-
-          {/* Placed */}
-          <div className="text-sm text-secondary" title={order.createdAt}>
-            {order.createdAt ? formatDistanceToNow(new Date(order.createdAt), { addSuffix: true }) : 'N/A'}
-          </div>
-
-          {/* Actions */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              // Handle kebab menu
-            }}
-            className="flex items-center justify-center w-8 h-8 rounded hover:bg-[color:var(--border-subtle)] transition-colors"
-          >
-            <MoreVertical size={16} className="text-secondary" />
-          </button>
-        </div>
-      ))}
+              <TableCell className="font-mono text-sm text-foreground px-5">
+                {order.id}
+              </TableCell>
+              <TableCell className="text-sm font-medium text-foreground truncate px-5">
+                {order.customerName}
+              </TableCell>
+              <TableCell className="text-sm text-muted-foreground truncate max-w-[200px] px-5">
+                {order.items.join(', ')}
+              </TableCell>
+              <TableCell className="font-mono text-sm text-foreground text-right px-5">
+                ${order.total.toFixed(2)}
+              </TableCell>
+              <TableCell className="px-5">
+                <Badge
+                  className={`inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium border-0 ${getStatusClass(order.status)}`}
+                  variant="default"
+                >
+                  {order.status}
+                </Badge>
+              </TableCell>
+              <TableCell
+                className="text-sm text-muted-foreground px-5"
+                title={order.createdAt}
+              >
+                {order.createdAt
+                  ? formatDistanceToNow(new Date(order.createdAt), { addSuffix: true })
+                  : 'N/A'}
+              </TableCell>
+              <TableCell className="px-2">
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  className="rounded"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                >
+                  <MoreVertical size={16} className="text-muted-foreground" />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }
