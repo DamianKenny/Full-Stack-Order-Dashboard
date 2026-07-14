@@ -1,0 +1,26 @@
+[
+  {
+    "id": "ORD-001",
+    "customerName": "Alice Silva",
+    "items": ["Artisanal Bread x2", "Croissant x3"],
+    "total": 24.50,
+    "status": "Pending",
+    "createdAt": "2024-01-15T10:30:00.000Z"
+  },
+  {
+    "id": "ORD-002",
+    "customerName": "Bob Perera",
+    "items": ["Chocolate Cake x1"],
+    "total": 18.00,
+    "status": "Shipped",
+    "createdAt": "2024-01-15T11:45:00.000Z"
+  },
+  {
+    "id": "ORD-003",
+    "customerName": "Carol Zhang",
+    "items": ["Coffee Beans x1", "Espresso Cup x2"],
+    "total": 45.00,
+    "status": "Delivered",
+    "createdAt": "2024-01-14T09:15:00.000Z"
+  }
+]
