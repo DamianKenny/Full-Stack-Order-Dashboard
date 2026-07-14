@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { Order, CreateOrderDTO } from '../types/order';
+import { Order, CreateOrderDTO, OrderStatus } from '../types/order';
 
 const DATA_FILE = path.join(__dirname, '../data/orders.json');
 
@@ -52,7 +52,17 @@ export class OrderModel {
   }
 
   // ENHANCEMENT: Update order status
-  static async updateStatus(id: string, status: OrderStatus): Promise<Order | null> {
+  static async updateStatus(
+    id: string, 
+    status: string
+): Promise<Order | null> {
+
+    const validStatuses: Array<Order['status']> = ['Pending', 'Shipped', 'Delivered'];
+    
+    if (!validStatuses.includes(status as Order['status'])) {
+      throw new Error(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
+    }
+    
     const orders = await this.findAll();
     const orderIndex = orders.findIndex(o => o.id === id);
     
