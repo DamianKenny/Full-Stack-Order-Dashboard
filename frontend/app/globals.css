@@ -1,26 +1,105 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Colors - OKLCH */
+    --bg: oklch(98% 0.004 260);
+    --surface: oklch(99.5% 0.002 260);
+    --surface-raised: oklch(100% 0 0);
+    --border: oklch(92% 0.006 260);
+    --border-subtle: oklch(95% 0.004 260);
+    
+    --text: oklch(23% 0.018 262);
+    --text-muted: oklch(52% 0.014 262);
+    --text-faint: oklch(68% 0.01 262);
+    
+    --accent: oklch(51% 0.15 264);
+    --accent-surface: oklch(95% 0.03 264);
+    
+    --pending-text: oklch(68% 0.12 78);
+    --pending-fill: oklch(96% 0.03 78);
+    
+    --shipped-text: oklch(60% 0.11 240);
+    --shipped-fill: oklch(95% 0.025 240);
+    
+    --delivered-text: oklch(58% 0.11 152);
+    --delivered-fill: oklch(95% 0.03 152);
+    
+    --error-text: oklch(55% 0.16 25);
+    --error-fill: oklch(96% 0.03 25);
+  }
+
+  * {
+    @apply border-[color:var(--border)];
+  }
+
+  body {
+    @apply bg-[color:var(--bg)] text-[color:var(--text)];
+    font-family: var(--font-inter), system-ui, sans-serif;
+  }
+
+  .font-mono {
+    font-family: var(--font-plex-mono), 'Courier New', monospace;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .text-primary {
+    color: var(--text);
+  }
+  
+  .text-secondary {
+    color: var(--text-muted);
+  }
+  
+  .text-faint {
+    color: var(--text-faint);
+  }
+  
+  .bg-surface {
+    background-color: var(--surface);
+  }
+  
+  .bg-surface-raised {
+    background-color: var(--surface-raised);
+  }
+  
+  .border-default {
+    border-color: var(--border);
+  }
+  
+  .border-subtle {
+    border-color: var(--border-subtle);
+  }
+}
+
+/* Animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-fade-in {
+  animation: fadeIn 250ms ease-out;
 }
