@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { ProductModel } from '../models/productModel';
-import { OrderModel } from '../models/orderModel';
+import { ProductModelMongoDB } from '../models/ProductModelMongo';
+import { OrderModelMongoDB } from '../models/OrderModelMongo';
 
 export const getProducts = async (
   req: Request,
@@ -11,10 +11,10 @@ export const getProducts = async (
     const { category } = req.query;
 
     if (category && typeof category === 'string') {
-      const products = await ProductModel.findByCategory(category);
+      const products = await ProductModelMongoDB.findByCategory(category);
       res.json(products);
     } else {
-      const products = await ProductModel.findAll();
+      const products = await ProductModelMongoDB.findAll();
       res.json(products);
     }
   } catch (error) {
@@ -28,7 +28,7 @@ export const getTopProducts = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const orders = await OrderModel.findAll();
+    const orders = await OrderModelMongoDB.findAll();
     
     // Count item frequency across all orders
     const itemCounts: Record<string, number> = {};

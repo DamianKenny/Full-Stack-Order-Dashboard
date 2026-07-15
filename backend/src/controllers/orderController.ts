@@ -1,12 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { OrderModel } from '../models/orderModel';
+import { OrderModelMongoDB } from '../models/OrderModelMongo';
 import { validateCreateOrder, ValidationError } from '../utils/validators';
 import { applyOrderFilters } from '../utils/orderFilters';
-import { writeFileSync } from 'fs';
-import path from 'path';
 import { broadcastOrderEvent } from '../utils/liveEvents';
-
-const DATA_FILE = path.join(__dirname, '../data/orders.json');
 
 // Type definitions for route parameters
 interface UpdateOrderParams {
@@ -26,7 +22,7 @@ export const getOrders = async (
     const sortBy = req.query.sortBy;
     const sortOrder = req.query.sortOrder;
 
-    const orders = await OrderModel.findAll();
+    const orders = await OrderModelMongoDB.findAll();
     const filteredOrders = applyOrderFilters(orders, {
       status: typeof status === 'string' ? status : undefined,
       search: typeof search === 'string' ? search : undefined,
@@ -49,7 +45,7 @@ export const createOrder = async (
 ): Promise<void> => {
   try {
     validateCreateOrder(req.body);
-    const newOrder = await OrderModel.create(req.body);
+    const newOrder = await OrderModelMongoDB.create(req.body);
     broadcastOrderEvent('order:created', { order: newOrder });
     res.status(201).json(newOrder);
   } catch (error) {
@@ -71,7 +67,7 @@ export const deleteOrder = async (
 ): Promise<void> => {
   try {
     const id = req.params.id;
-    const deleted = await OrderModel.delete(id);
+    const deleted = await OrderModelMongoDB.delete(id);
 
     if (!deleted) {
       res.status(404).json({ error: 'Order not found' });
@@ -98,7 +94,7 @@ export const updateOrder = async (
     const id = req.params.id;
     const { customerName, items, total } = req.body;
 
-    const orders = await OrderModel.findAll();
+    const orders = await OrderModelMongoDB.findAll();
     const orderIndex = orders.findIndex(o => o.id === id);
 
     if (orderIndex === -1) {
@@ -106,17 +102,15 @@ export const updateOrder = async (
       return;
     }
 
-    if (customerName !== undefined) orders[orderIndex].customerName = customerName;
-    if (items !== undefined) orders[orderIndex].items = items;
-    if (total !== undefined) orders[orderIndex].total = total;
+    const updates: { customerName?: string; items?: string[]; total?: number } = {};
+    if (customerName !== undefined) updates.customerName = customerName;
+    if (items !== undefined) updates.items = items;
+    if (total !== undefined) updates.total = total;
 
-    await new Promise<void>((resolve, reject) => {
-      writeFileSync(DATA_FILE, JSON.stringify(orders, null, 2));
-      resolve();
-    });
+    const updatedOrder = await OrderModelMongoDB.update(id, updates);
 
-    broadcastOrderEvent('order:updated', { order: orders[orderIndex] });
-    res.json(orders[orderIndex]);
+    broadcastOrderEvent('order:updated', { order: updatedOrder });
+    res.json(updatedOrder);
   } catch (error) {
     if (error instanceof Error) {
       res.status(400).json({ error: error.message });
@@ -141,7 +135,7 @@ export const updateOrderStatus = async (
       return;
     }
 
-    const updatedOrder = await OrderModel.updateStatus(id, status);
+    const updatedOrder = await OrderModelMongoDB.updateStatus(id, status);
 
     if (!updatedOrder) {
       res.status(404).json({ error: 'Order not found' });
@@ -178,7 +172,7 @@ export const bulkUpdateOrderStatus = async (
       return;
     }
 
-    const updatedOrders = await OrderModel.updateStatusBulk(ids, status);
+    const updatedOrders = await OrderModelMongoDB.updateStatusBulk(ids, status);
 
     updatedOrders.forEach((order) => {
       broadcastOrderEvent('order:updated', { order });
@@ -207,7 +201,7 @@ export const bulkDeleteOrders = async (
       return;
     }
 
-    const deletedCount = await OrderModel.deleteBulk(ids);
+    const deletedCount = await OrderModelMongoDB.deleteBulk(ids);
 
     ids.forEach((id) => {
       broadcastOrderEvent('order:deleted', { id });

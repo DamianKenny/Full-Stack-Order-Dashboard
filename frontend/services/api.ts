@@ -67,6 +67,23 @@ export const orderAPI = {
   },
 };
 
+export const analyticsAPI = {
+  getRevenueTrend: async (params: { startDate?: string; endDate?: string; groupBy?: string } = {}) => {
+    const response = await apiClient.get<{ period: string; revenue: number }[]>('/analytics/revenue', { params });
+    return response.data;
+  },
+
+  getVolumeTrend: async (params: { groupBy?: string } = {}) => {
+    const response = await apiClient.get<{ period: string; count: number }[]>('/analytics/volume', { params });
+    return response.data;
+  },
+
+  getCustomerSegments: async () => {
+    const response = await apiClient.get<{ status: string; count: number; revenue: number }[]>('/analytics/customers/segments');
+    return response.data;
+  },
+};
+
 export const productAPI = {
   getProducts: async (category?: string): Promise<Product[]> => {
     const params = category ? { category } : {};
