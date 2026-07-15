@@ -87,4 +87,36 @@ export class OrderModel {
     await fs.writeFile(DATA_FILE, JSON.stringify(filteredOrders, null, 2));
     return true;
   }
+
+  static async updateStatusBulk(ids: string[], status: string): Promise<Order[]> {
+    const validStatuses: Array<Order['status']> = ['Pending', 'Shipped', 'Delivered'];
+    if (!validStatuses.includes(status as Order['status'])) {
+      throw new Error(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
+    }
+
+    const orders = await this.findAll();
+    const updatedOrders: Order[] = [];
+
+    const nextOrders = orders.map((order) => {
+      if (ids.includes(order.id)) {
+        const updatedOrder = { ...order, status: status as Order['status'] };
+        updatedOrders.push(updatedOrder);
+        return updatedOrder;
+      }
+      return order;
+    });
+
+    await fs.writeFile(DATA_FILE, JSON.stringify(nextOrders, null, 2));
+    return updatedOrders;
+  }
+
+  static async deleteBulk(ids: string[]): Promise<number> {
+    const orders = await this.findAll();
+    const filteredOrders = orders.filter((order) => !ids.includes(order.id));
+    const deletedCount = orders.length - filteredOrders.length;
+
+    await fs.writeFile(DATA_FILE, JSON.stringify(filteredOrders, null, 2));
+    return deletedCount;
+  }
 }
+

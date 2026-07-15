@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, Plus } from 'lucide-react';
+import { Search, Plus, SlidersHorizontal } from 'lucide-react';
 import { OrderStatus } from '../types/order';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,8 @@ interface TopBarProps {
   onNewOrder: () => void;
   searchValue: string;
   onSearchChange: (value: string) => void;
+  activeFiltersCount: number;
+  onToggleFilters: () => void;
 }
 
 export default function TopBar({
@@ -20,6 +22,8 @@ export default function TopBar({
   onNewOrder,
   searchValue,
   onSearchChange,
+  activeFiltersCount,
+  onToggleFilters,
 }: TopBarProps) {
   return (
     <div className="flex items-center justify-between h-16 px-8 border-b bg-card">
@@ -45,6 +49,12 @@ export default function TopBar({
 
         {/* Status Filter */}
         <SegmentedControl currentStatus={currentStatus} onStatusChange={onStatusChange} />
+
+        <Button variant="outline" size="sm" onClick={onToggleFilters}>
+          <SlidersHorizontal size={14} className="mr-2" />
+          Filters
+          {activeFiltersCount > 0 && <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-[10px] text-primary-foreground">{activeFiltersCount}</span>}
+        </Button>
 
         {/* New Order Button */}
         <Button onClick={onNewOrder} size="sm">

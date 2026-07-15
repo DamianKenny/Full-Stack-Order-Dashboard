@@ -8,6 +8,17 @@ export interface Order {
 }
 
 export type OrderStatus = 'All' | 'Pending' | 'Shipped' | 'Delivered';
+export type OrderSortBy = 'date' | 'total' | 'status';
+export type OrderSortOrder = 'asc' | 'desc';
+
+export interface OrderFilters {
+    status?: OrderStatus;
+    dateFrom?: string;
+    dateTo?: string;
+    search?: string;
+    sortBy?: OrderSortBy;
+    sortOrder?: OrderSortOrder;
+}
 
 export interface CreateOrderRequest {
     customerName: string;

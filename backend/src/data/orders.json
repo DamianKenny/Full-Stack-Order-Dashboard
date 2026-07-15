@@ -25,7 +25,7 @@
     "customerName": "Carol Zhang",
     "items": [
       "Coffee Beans x1",
-      "Espresso Cup x2"
+      "Espresso Cup x3"
     ],
     "total": 45,
     "status": "Delivered",
@@ -60,7 +60,7 @@
     "items": [
       "Chocolate Cake x1",
       "Butter Croissant x1",
-      "Coffee Beans x2"
+      "Coffee Beans x3"
     ],
     "total": 43.5,
     "status": "Delivered",

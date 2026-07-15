@@ -17,13 +17,24 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 interface OrderTableProps {
-  orders: Order[]
+  orders: Order[];
+  selectedIds: string[];
   onOrderClick: (order: Order) => void;
   onDelete?: (order: Order) => void;
   onEdit?: (order: Order) => void;
+  onToggleSelect: (id: string) => void;
+  onSelectAll: (ids: string[]) => void;
 }
 
-export default function OrderTable({ orders, onOrderClick, onDelete, onEdit }: OrderTableProps) {
+export default function OrderTable({
+  orders,
+  selectedIds,
+  onOrderClick,
+  onDelete,
+  onEdit,
+  onToggleSelect,
+  onSelectAll,
+}: OrderTableProps) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [deleteConfirmOrder, setDeleteConfirmOrder] = useState<Order | null>(null);
 
@@ -47,12 +58,22 @@ export default function OrderTable({ orders, onOrderClick, onDelete, onEdit }: O
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const allOrderIds = orders.map((order) => order.id);
+  const areAllSelected = allOrderIds.length > 0 && allOrderIds.every((id) => selectedIds.includes(id));
+
   return (
     <>
       <div className="border rounded-xl bg-card overflow-hidden mx-8">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground h-11 px-5">
+                <input
+                  type="checkbox"
+                  checked={areAllSelected}
+                  onChange={() => onSelectAll(areAllSelected ? [] : allOrderIds)}
+                />
+              </TableHead>
               <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground h-11 px-5">Order ID</TableHead>
               <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground h-11 px-5">Customer</TableHead>
               <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground h-11 px-5">Items</TableHead>
@@ -63,83 +84,97 @@ export default function OrderTable({ orders, onOrderClick, onDelete, onEdit }: O
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders.map((order) => (
-              <TableRow
-                key={order.id}
-                className="cursor-pointer h-14"
-                onClick={() => onOrderClick(order)}
-              >
-                <TableCell className="font-mono text-sm text-foreground px-5">
-                  {order.id}
-                </TableCell>
-                <TableCell className="text-sm font-medium text-foreground truncate px-5">
-                  {order.customerName}
-                </TableCell>
-                <TableCell className="text-sm text-muted-foreground truncate max-w-[200px] px-5">
-                  {order.items.join(', ')}
-                </TableCell>
-                <TableCell className="font-mono text-sm text-foreground text-right px-5">
-                  ${order.total.toFixed(2)}
-                </TableCell>
-                <TableCell className="px-5">
-                  <Badge
-                    className={`inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium border-0 ${getStatusClass(order.status)}`}
-                    variant="default"
-                  >
-                    {order.status}
-                  </Badge>
-                </TableCell>
-                <TableCell
-                  className="text-sm text-muted-foreground px-5"
-                  title={order.createdAt}
+            {orders.map((order) => {
+              const isSelected = selectedIds.includes(order.id);
+              return (
+                <TableRow
+                  key={order.id}
+                  className={`h-14 ${isSelected ? 'bg-muted/50' : ''}`}
+                  onClick={() => onOrderClick(order)}
                 >
-                  {order.createdAt
-                    ? formatDistanceToNow(new Date(order.createdAt), { addSuffix: true })
-                    : 'N/A'}
-                </TableCell>
-                <TableCell className="px-2">
-                  <div className="relative" data-menu-id={order.id}>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenMenuId(openMenuId === order.id ? null : order.id);
+                  <TableCell className="px-5">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={(event) => {
+                        event.stopPropagation();
+                        onToggleSelect(order.id);
                       }}
-                      className="inline-flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
+                      onClick={(event) => event.stopPropagation()}
+                    />
+                  </TableCell>
+                  <TableCell className="font-mono text-sm text-foreground px-5">
+                    {order.id}
+                  </TableCell>
+                  <TableCell className="text-sm font-medium text-foreground truncate px-5">
+                    {order.customerName}
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground truncate max-w-[200px] px-5">
+                    {order.items.join(', ')}
+                  </TableCell>
+                  <TableCell className="font-mono text-sm text-foreground text-right px-5">
+                    ${order.total.toFixed(2)}
+                  </TableCell>
+                  <TableCell className="px-5">
+                    <Badge
+                      className={`inline-flex items-center h-6 px-2.5 rounded-full text-xs font-medium border-0 ${getStatusClass(order.status)}`}
+                      variant="default"
                     >
-                      <MoreVertical size={16} />
-                    </button>
-                    {openMenuId === order.id && (
-                      <div className="absolute right-0 top-7 z-50 w-40 rounded-md border bg-white py-1 shadow-lg">
-                        <button
-                          className="flex w-full items-center px-3 py-2 text-sm hover:bg-slate-100"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setOpenMenuId(null);
-                            if (onEdit) onEdit(order);
-                          }}
-                        >
-                          <Edit className="mr-2 h-4 w-4" />
-                          <span>Edit</span>
-                        </button>
-                        <div className="my-1 h-px bg-slate-200" />
-                        <button
-                          className="flex w-full items-center px-3 py-2 text-sm text-destructive hover:bg-slate-100"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setOpenMenuId(null);
-                            setDeleteConfirmOrder(order);
-                          }}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          <span>Delete</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+                      {order.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell
+                    className="text-sm text-muted-foreground px-5"
+                    title={order.createdAt}
+                  >
+                    {order.createdAt
+                      ? formatDistanceToNow(new Date(order.createdAt), { addSuffix: true })
+                      : 'N/A'}
+                  </TableCell>
+                  <TableCell className="px-2">
+                    <div className="relative" data-menu-id={order.id}>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuId(openMenuId === order.id ? null : order.id);
+                        }}
+                        className="inline-flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
+                      >
+                        <MoreVertical size={16} />
+                      </button>
+                      {openMenuId === order.id && (
+                        <div className="absolute right-0 top-7 z-50 w-40 rounded-md border bg-white py-1 shadow-lg">
+                          <button
+                            className="flex w-full items-center px-3 py-2 text-sm hover:bg-slate-100"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenMenuId(null);
+                              onOrderClick(order);
+                            }}
+                          >
+                            <Edit className="mr-2 h-4 w-4" />
+                            <span>Edit</span>
+                          </button>
+                          <div className="my-1 h-px bg-slate-200" />
+                          <button
+                            className="flex w-full items-center px-3 py-2 text-sm text-destructive hover:bg-slate-100"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenMenuId(null);
+                              setDeleteConfirmOrder(order);
+                            }}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            <span>Delete</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
