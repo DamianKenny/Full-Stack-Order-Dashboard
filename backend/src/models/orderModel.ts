@@ -73,4 +73,18 @@ export class OrderModel {
     
     return orders[orderIndex];
   }
+
+  // Delete order by ID
+  static async delete(id: string): Promise<boolean> {
+    const orders = await this.findAll();
+    const initialLength = orders.length;
+    const filteredOrders = orders.filter(o => o.id !== id);
+    
+    if (filteredOrders.length === initialLength) {
+      return false; // Order not found
+    }
+    
+    await fs.writeFile(DATA_FILE, JSON.stringify(filteredOrders, null, 2));
+    return true;
+  }
 }

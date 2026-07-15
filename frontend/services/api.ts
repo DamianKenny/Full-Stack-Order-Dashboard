@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Order, CreateOrderRequest } from '../types/order';
+import { Product, TopProduct } from '../types/product';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
@@ -28,6 +29,15 @@ export const orderAPI = {
     return response.data;
   },
 
+  deleteOrder: async (id: string): Promise<void> => {
+    await apiClient.delete(`/orders/${id}`);
+  },
+
+  updateOrder: async (id: string, data: { customerName?: string; items?: string[]; total?: number }): Promise<Order> => {
+    const response = await apiClient.put<Order>(`/orders/${id}`, data);
+    return response.data;
+  },
+
   checkHealth: async (): Promise<boolean> => {
     try {
       await axios.get(`${API_BASE_URL.replace('/api', '')}/health`);
@@ -35,5 +45,18 @@ export const orderAPI = {
     } catch {
       return false;
     }
+  },
+};
+
+export const productAPI = {
+  getProducts: async (category?: string): Promise<Product[]> => {
+    const params = category ? { category } : {};
+    const response = await apiClient.get<Product[]>('/products', { params });
+    return response.data;
+  },
+
+  getTopProducts: async (): Promise<TopProduct[]> => {
+    const response = await apiClient.get<TopProduct[]>('/products/top');
+    return response.data;
   },
 };

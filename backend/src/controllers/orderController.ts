@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { OrderModel } from '../models/orderModel';
 import { validateCreateOrder, ValidationError } from '../utils/validators';
+import { writeFileSync } from 'fs';
+import path from 'path';
+
+const DATA_FILE = path.join(__dirname, '../data/orders.json');
 
 // Type definitions for route parameters
 interface UpdateOrderParams {
@@ -43,6 +47,66 @@ export const createOrder = async (
         error: error.message,
         field: 'validation' 
       });
+      return;
+    }
+    next(error);
+  }
+};
+
+export const deleteOrder = async (
+  req: Request<UpdateOrderParams>,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const id = req.params.id;
+    const deleted = await OrderModel.delete(id);
+
+    if (!deleted) {
+      res.status(404).json({ error: 'Order not found' });
+      return;
+    }
+
+    res.status(200).json({ message: 'Order deleted successfully' });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).json({ error: error.message });
+      return;
+    }
+    next(error);
+  }
+};
+
+export const updateOrder = async (
+  req: Request<UpdateOrderParams>,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const id = req.params.id;
+    const { customerName, items, total } = req.body;
+
+    const orders = await OrderModel.findAll();
+    const orderIndex = orders.findIndex(o => o.id === id);
+
+    if (orderIndex === -1) {
+      res.status(404).json({ error: 'Order not found' });
+      return;
+    }
+
+    if (customerName !== undefined) orders[orderIndex].customerName = customerName;
+    if (items !== undefined) orders[orderIndex].items = items;
+    if (total !== undefined) orders[orderIndex].total = total;
+
+    await new Promise<void>((resolve, reject) => {
+      writeFileSync(DATA_FILE, JSON.stringify(orders, null, 2));
+      resolve();
+    });
+
+    res.json(orders[orderIndex]);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).json({ error: error.message });
       return;
     }
     next(error);

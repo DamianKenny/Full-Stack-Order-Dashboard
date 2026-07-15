@@ -40,9 +40,42 @@ export const useOrderMutation = () => {
     }
   };
 
+  const deleteOrder = async (id: string) => {
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      await orderAPI.deleteOrder(id);
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error || 'Failed to delete order';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const updateOrder = async (id: string, data: { customerName?: string; items?: string[]; total?: number }) => {
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const updatedOrder = await orderAPI.updateOrder(id, data);
+      return updatedOrder;
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error || 'Failed to update order';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return {
     createOrder,
     updateOrderStatus,
+    deleteOrder,
+    updateOrder,
     isSubmitting,
     error,
   };

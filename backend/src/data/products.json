@@ -1,0 +1,62 @@
+[
+  {
+    "id": "PROD-001",
+    "name": "Artisanal Bread",
+    "price": 5.00,
+    "category": "Bakery"
+  },
+  {
+    "id": "PROD-002",
+    "name": "Croissant",
+    "price": 2.00,
+    "category": "Bakery"
+  },
+  {
+    "id": "PROD-003",
+    "name": "Chocolate Cake",
+    "price": 18.00,
+    "category": "Bakery"
+  },
+  {
+    "id": "PROD-004",
+    "name": "Coffee Beans",
+    "price": 22.00,
+    "category": "Beverages"
+  },
+  {
+    "id": "PROD-005",
+    "name": "Espresso Cup",
+    "price": 2.00,
+    "category": "Beverages"
+  },
+  {
+    "id": "PROD-006",
+    "name": "Eggs",
+    "price": 3.00,
+    "category": "Dairy"
+  },
+  {
+    "id": "PROD-007",
+    "name": "Milk",
+    "price": 4.50,
+    "category": "Dairy"
+  },
+  {
+    "id": "PROD-008",
+    "name": "Sourdough Loaf",
+    "price": 9.00,
+    "category": "Bakery"
+  },
+  {
+    "id": "PROD-009",
+    "name": "Butter Croissant",
+    "price": 3.50,
+    "category": "Bakery"
+  },
+  {
+    "id": "PROD-010",
+    "name": "Organic Honey",
+    "price": 11.00,
+    "category": "Pantry"
+  }
+]

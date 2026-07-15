@@ -24,7 +24,7 @@ export default function SegmentedControl({
   };
 
   return (
-    <ToggleGroup
+    <ToggleGroup 
       value={groupValue}
       onValueChange={handleValueChange}
       variant="outline"
@@ -33,11 +33,11 @@ export default function SegmentedControl({
       size="sm"
     >
       {statuses.map((status) => (
-        <ToggleGroupItem
+        <ToggleGroupItem 
           key={status}
           value={status}
           aria-label={status}
-          className="px-3 text-xs font-medium min-w-0"
+          className="px-3 text-xs font-medium min-w-0 aria-pressed:bg-blue-100"
         >
           {status}
         </ToggleGroupItem>

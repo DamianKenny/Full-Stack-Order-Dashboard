@@ -17,7 +17,7 @@
       "Chocolate Cake x1"
     ],
     "total": 18,
-    "status": "Shipped",
+    "status": "Delivered",
     "createdAt": "2024-01-15T11:45:00.000Z"
   },
   {
@@ -39,7 +39,31 @@
       "Bread x1"
     ],
     "total": 9,
-    "status": "Pending",
+    "status": "Shipped",
     "createdAt": "2026-07-14T12:44:27.820Z"
+  },
+  {
+    "id": "ORD-005",
+    "customerName": "Damian",
+    "items": [
+      "Artisanal Bread x2 x1",
+      "Croissant x3 x1",
+      "Chocolate Cake x1 x1"
+    ],
+    "total": 45,
+    "status": "Shipped",
+    "createdAt": "2026-07-14T14:01:45.317Z"
+  },
+  {
+    "id": "ORD-006",
+    "customerName": "Lara Abey",
+    "items": [
+      "Chocolate Cake x1",
+      "Butter Croissant x1",
+      "Coffee Beans x2"
+    ],
+    "total": 43.5,
+    "status": "Delivered",
+    "createdAt": "2026-07-15T03:29:03.113Z"
   }
 ]
