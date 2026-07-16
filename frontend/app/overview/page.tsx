@@ -11,6 +11,8 @@ import CustomerSegmentationChart from '@/components/overview/CustomerSegmentatio
 import OrderVolumeChart from '@/components/overview/OrderVolumeChart';
 import ActivityFeed from '@/components/overview/ActivityFeed';
 import SecondaryKPIs from '@/components/overview/SecondaryKPIs';
+import PredictedTopProductsChart from '@/components/overview/PredictedTopProductsChart';
+import PredictionInsights from '@/components/overview/PredictionInsights';
 import LoadingSkeleton from '@/components/LoadingSkeleton';
 import ErrorBanner from '@/components/ErrorBanner';
 
@@ -18,6 +20,8 @@ export default function OverviewPage() {
   const { orders, isLoading, error, refetch } = useOrders();
   const [revenueDateFrom, setRevenueDateFrom] = useState('');
   const [revenueDateTo, setRevenueDateTo] = useState('');
+  const [predictionPeriod, setPredictionPeriod] = useState<'monthly' | 'quarterly' | 'yearly'>('monthly');
+  const [exporting, setExporting] = useState(false);
 
   if (isLoading) {
     return <LoadingSkeleton />;
@@ -63,6 +67,17 @@ export default function OverviewPage() {
           <div className="grid grid-cols-2 gap-5 px-8 mb-5">
             <OrderVolumeChart orders={orders} />
             <ActivityFeed orders={orders} />
+          </div>
+
+          {/* ML Predictions Section */}
+          <div className="px-8 mb-5">
+            <div className="grid grid-cols-2 gap-5">
+              <PredictedTopProductsChart
+                period={predictionPeriod}
+                onPeriodChange={setPredictionPeriod}
+              />
+              <PredictionInsights period={predictionPeriod} />
+            </div>
           </div>
 
           <div className="px-8 pb-10">

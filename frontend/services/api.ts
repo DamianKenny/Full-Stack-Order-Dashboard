@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Order, CreateOrderRequest, OrderFilters } from '../types/order';
 import { Product, TopProduct } from '../types/product';
+import { Prediction, MLStatus, TrainingResponse } from '../types/prediction';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
@@ -93,6 +94,37 @@ export const productAPI = {
 
   getTopProducts: async (): Promise<TopProduct[]> => {
     const response = await apiClient.get<TopProduct[]>('/products/top');
+    return response.data;
+  },
+};
+
+export const mlAPI = {
+  triggerTraining: async (): Promise<TrainingResponse> => {
+    const response = await apiClient.post<TrainingResponse>('/ml/train');
+    return response.data;
+  },
+
+  getPredictions: async (period: 'monthly' | 'quarterly' | 'yearly'): Promise<Prediction[]> => {
+    const response = await apiClient.get<{ success: boolean; data: Prediction[] }>(`/ml/predictions/${period}`);
+    return response.data.data;
+  },
+
+  getTopProducts: async (period: 'monthly' | 'quarterly' | 'yearly', limit: number = 10): Promise<Prediction[]> => {
+    const response = await apiClient.get<{ success: boolean; data: Prediction[] }>(`/ml/top-products/${period}`, {
+      params: { limit }
+    });
+    return response.data.data;
+  },
+
+  getMLStatus: async (): Promise<MLStatus> => {
+    const response = await apiClient.get<{ success: boolean; data: MLStatus }>('/ml/status');
+    return response.data.data;
+  },
+
+  exportPredictionsCSV: async (period: 'monthly' | 'quarterly' | 'yearly'): Promise<Blob> => {
+    const response = await apiClient.get(`/ml/export/${period}`, {
+      responseType: 'blob'
+    });
     return response.data;
   },
 };

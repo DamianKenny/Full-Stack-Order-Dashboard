@@ -6,9 +6,11 @@ import { WebSocketServer } from 'ws';
 import orderRoutes from './routes/orderRoutes';
 import productRoutes from './routes/productRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
+import mlRoutes from './routes/mlRoutes';
 import { errorHandler } from './middleware/errorHandler';
 import { setSocketServer } from './utils/liveEvents';
 import { connectDB, disconnectDB } from './config/database';
+import { startMLScheduler } from './services/scheduler';
 
 dotenv.config();
 
@@ -27,6 +29,7 @@ app.use(express.json());
 app.use('/api', orderRoutes);
 app.use('/api', productRoutes);
 app.use('/api', analyticsRoutes);
+app.use('/api/ml', mlRoutes);
 
 //health check
 app.get('/health', (req, res) => { 
@@ -40,6 +43,9 @@ app.use(errorHandler);
 const startServer = async (): Promise<void> => {
   // Connect to database
   await connectDB();
+
+  // Start ML training scheduler
+  startMLScheduler();
 
   // Graceful shutdown
   process.on('SIGINT', async () => {

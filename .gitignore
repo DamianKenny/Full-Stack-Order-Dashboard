@@ -3,3 +3,26 @@ node_modules/
 dist/
 .next/
 build/
+
+# Python
+ml-service/__pycache__/
+ml-service/venv/
+ml-service/.venv/
+ml-service/*.pyc
+*.py[cod]
+*$py.class
+
+# ML Models and data
+ml-service/models/*.pkl
+ml-service/models/predictions.json
+ml-service/data/*.csv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
